@@ -5,20 +5,32 @@ import pandas as pd
 import numpy as np 
 import os
 from datetime import datetime, timedelta,date
-import time
+from configparser import ConfigParser 
 
-#this stuff loads the keys
+
 directory = os.path.dirname(os.path.abspath(__file__))
+configfile = os.path.join(directory, 'config.ini')
+parser = ConfigParser()
+parser.read(configfile)
+
+host = parser.get('marketmovers','host')
+user = parser.get('marketmovers','user')
+passwd = parser.get('marketmovers','passwd')
+database = parser.get('marketmovers','database')
+
+engine = parser.get('engines','marketmovers')
 
 
-cryptomarketcaprank = pd.read_csv('csvs/cryptomarketcaprank.csv')
+cryptomarketcaprank = pd.read_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptomarketcaprank.csv')
 cryptomarketcaprank.set_index('date', inplace=True)
-cryptototalvolume = pd.read_csv('csvs/cryptototalvolume.csv')
+cryptototalvolume = pd.read_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptototalvolume.csv')
 cryptototalvolume.set_index('date', inplace=True)
-cryptocirculatingsupply = pd.read_csv('csvs/cryptocirculatingsupply.csv')
+cryptocirculatingsupply = pd.read_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptocirculatingsupply.csv')
 cryptocirculatingsupply.set_index('date', inplace=True)
-cryptopricechange = pd.read_csv('csvs/cryptopricechange.csv')
+cryptopricechange = pd.read_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptopricechange.csv')
 cryptopricechange.set_index('date', inplace=True)
+cryptoprice = pd.read_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptoprice.csv')
+cryptoprice.set_index('date', inplace=True)
 
 cg = CoinGeckoAPI()
 
@@ -28,10 +40,16 @@ data3 = pd.DataFrame(cg.get_coins_markets(vs_currency = 'USD',order = 'market_ca
 data4 = pd.DataFrame(cg.get_coins_markets(vs_currency = 'USD',order = 'market_cap_rank',per_page = '250',page  = '4'))
 
 maintable = pd.concat([data,data2,data3,data4])
+maintable.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptostats.csv')
+
+trend = cg.get_search_trending()
+trend = trend['coins']
+trend = pd.concat([pd.DataFrame(l) for l in trend],axis=1).T
+#print(trend)
+#print(type(trend))
+trend.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cgtrending24.csv')
 
 #print(maintable)
-#maintable.to_csv('coingeckotop.csv')
-
 #testing purposes
 days = 0
 
@@ -67,14 +85,24 @@ pricechange.columns.name = None
 pricechange['date'] = date.today()-timedelta(days=days)
 pricechange.set_index('date',inplace=True)
 
+price = maintable[['name','current_price']]
+price.set_index('name',inplace=True)
+price = price.transpose()
+price.reset_index(drop=True, inplace=True)
+price.columns.name = None
+price['date'] = date.today()-timedelta(days=days)
+price.set_index('date',inplace=True)
+
 marketcaprank = pd.concat([marketcaprank,cryptomarketcaprank],sort=True)
 totalvolume = pd.concat([totalvolume,cryptototalvolume],sort=True)
 circulatingsupply = pd.concat([circulatingsupply,cryptocirculatingsupply],sort=True)
 pricechange = pd.concat([pricechange,cryptopricechange],sort=True)
+price = pd.concat([price,cryptoprice],sort=True)
 
-marketcaprank.to_csv('csvs/cryptomarketcaprank.csv')
-totalvolume.to_csv('csvs/cryptototalvolume.csv')
-circulatingsupply.to_csv('csvs/cryptocirculatingsupply.csv')
-pricechange.to_csv('csvs/cryptopricechange.csv')
+marketcaprank.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptomarketcaprank.csv')
+totalvolume.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptototalvolume.csv')
+circulatingsupply.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptocirculatingsupply.csv')
+pricechange.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptopricechange.csv')
+price.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\cryptoprice.csv')
 
-print('files generated')
+print("CSVs created")

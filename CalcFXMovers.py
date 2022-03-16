@@ -60,3 +60,4 @@ closingrangetable = pd.concat([closingrangetablegainers, closingrangetablelosers
 closingrangetable.reset_index(inplace = True)
 closingrangetable.to_sql('dailyfxmoversclose', exportengine, if_exists='replace')
 
+print('DB created 1')

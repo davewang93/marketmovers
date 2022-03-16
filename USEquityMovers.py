@@ -95,7 +95,7 @@ volumetable = pd.DataFrame()
 intradaytable = pd.DataFrame()
 opentable = pd.DataFrame()
 #for testing purposes
-days= 0
+days= 1
 '''
 
 '''

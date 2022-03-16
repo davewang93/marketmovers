@@ -43,8 +43,12 @@ prevdate = 1
 curdate = 0
 numberofmovers = 75
 
+filterdf = pd.read_csv('equityuniverseexbiotech,tech.csv')
+columns = filterdf['Symbol']
+
 closedata = pd.read_csv('csvs/usequityclosetable.csv')
 closedata = closedata.drop('date',1)
+closedata= closedata[columns]
 closecolumns = closedata.columns
 closedata[closecolumns] = closedata[closecolumns].apply(pd.to_numeric, errors='coerce')
 closingrangetable = ((closedata.iloc[curdate] - closedata.iloc[prevdate])/closedata.iloc[[prevdate]]*100)
@@ -55,11 +59,12 @@ closingrangetablegainers = closingrangetable.nlargest(numberofmovers,'pct change
 closingrangetablelosers = closingrangetable.nsmallest(numberofmovers,'pct change')
 closingrangetable = pd.concat([closingrangetablegainers, closingrangetablelosers])
 closingrangetable.reset_index(inplace = True)
-closingrangetable.to_sql('dailyusequitymoversclose', engine, if_exists='replace')
+closingrangetable.to_sql('equityuniverseexbiotechtechclose', engine, if_exists='replace')
 
 
 volumedata = pd.read_csv('csvs/usequityvolumetable.csv')
 volumedata = volumedata.drop('date',1)
+volumedata= volumedata[columns]
 volumecolumns = volumedata.columns
 volumedata[volumecolumns] = volumedata[volumecolumns].apply(pd.to_numeric, errors='coerce')
 volumedata.replace(0, np.nan, inplace=True)
@@ -73,11 +78,12 @@ volumerangetablelosers = volumerangetable.nsmallest(numberofmovers,'pct change')
 volumerangetable = pd.concat([volumerangetablegainers, volumerangetablelosers])
 #print(volumerangetable)
 volumerangetable.reset_index(inplace = True)
-volumerangetable.to_sql('dailyusequitymoversvolume', engine, if_exists='replace')
+volumerangetable.to_sql('equityuniverseexbiotechtechvolume', engine, if_exists='replace')
 
 intradaydata = pd.read_csv('csvs/usequityintradaytable.csv')
 intradaydata = intradaydata.iloc[[curdate]]
 intradaydata = intradaydata.drop('date',1)
+intradaydata= intradaydata[columns]
 intradaycolumns = intradaydata.columns
 intradaydata[intradaycolumns] = intradaydata[intradaycolumns].apply(pd.to_numeric, errors='coerce')
 intradaydata = intradaydata*100
@@ -88,10 +94,11 @@ intradayrangetablegainers = intradaydata.nlargest(numberofmovers,'pct change')
 intradayrangetablelosers = intradaydata.nsmallest(numberofmovers,'pct change')
 intradaydata = pd.concat([intradayrangetablegainers, intradayrangetablelosers])
 intradaydata.reset_index(inplace = True)
-intradaydata.to_sql('dailyusequitymoversintraday', engine, if_exists='replace')
+intradaydata.to_sql('equityuniverseexbiotechtechintraday', engine, if_exists='replace')
 
 opendata = pd.read_csv('csvs/usequityopentable.csv')
 opendata = opendata.drop('date',1)
+opendata= opendata[columns]
 opencolumns = opendata.columns
 opendata[opencolumns] = opendata[opencolumns].apply(pd.to_numeric, errors='coerce')
 overnightrangetable = ((opendata.iloc[curdate] - closedata.iloc[prevdate])/closedata.iloc[[prevdate]]*100)
@@ -102,6 +109,6 @@ overnightrangetablegainers = overnightrangetable.nlargest(numberofmovers,'pct ch
 overnightrangetablelosers = overnightrangetable.nsmallest(numberofmovers,'pct change')
 overnightrangetable = pd.concat([overnightrangetablegainers, overnightrangetablelosers])
 overnightrangetable.reset_index(inplace = True)
-overnightrangetable.to_sql('dailyusequitymoversovernight', engine, if_exists='replace')
+overnightrangetable.to_sql('equityuniverseexbiotechtechovernight', engine, if_exists='replace')
 
-print('DBs created 2')
+print('DBs created 3')

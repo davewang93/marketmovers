@@ -27,7 +27,7 @@ engine = parser.get('engines','marketmovers')
 secretkey = parser.get('keys','secretkey')
 #sandbox key
 testkey = parser.get('keys','testkey')
-
+ 
 #connect to specific db w/ both mysql connector and sqlalchemy. sqlalchemy for pushing and mysql for pulling
 mydb = mysql.connector.connect(
     host = host,
@@ -41,18 +41,21 @@ engine = create_engine(engine)
 
 prevdate = 1
 curdate = 0
-numberofmovers = 25
+numberofmovers = 30
 
 marketcaprank = pd.read_csv('csvs/cryptomarketcaprank.csv')
 marketcaprank = marketcaprank.drop('date',1)
 marketcapcolumns = marketcaprank.columns
 marketcaprank[marketcapcolumns] = marketcaprank[marketcapcolumns].apply(pd.to_numeric, errors='coerce')
-marketcaprangetable = ((marketcaprank.iloc[curdate] - marketcaprank.iloc[prevdate])/marketcaprank.iloc[[prevdate]]*100)
+marketcaprangetable = ((marketcaprank.iloc[curdate] - marketcaprank.iloc[prevdate]))
 marketcaprangetable = marketcaprangetable.transpose()
+marketcaprangetable = pd.DataFrame(marketcaprangetable)
+#print(marketcaprangetable)
+#print(type(marketcaprangetable))
 marketcaprangetable.index.names = ['ticker']
-marketcaprangetable.rename(columns={ marketcaprangetable.columns[0]: "pct change" }, inplace = True)
-marketcaprangetablegainers = marketcaprangetable.nlargest(numberofmovers,'pct change')
-marketcaprangetablelosers = marketcaprangetable.nsmallest(numberofmovers,'pct change')
+marketcaprangetable.rename(columns={ marketcaprangetable.columns[0]: 'rank change' }, inplace = True)
+marketcaprangetablegainers = marketcaprangetable.nlargest(numberofmovers,'rank change')
+marketcaprangetablelosers = marketcaprangetable.nsmallest(numberofmovers,'rank change')
 marketcaprangetable = pd.concat([marketcaprangetablegainers, marketcaprangetablelosers])
 marketcaprangetable.reset_index(inplace = True)
 marketcaprangetable.to_sql('cryptomarketcaprank', engine, if_exists='replace')
@@ -61,7 +64,8 @@ volumedata = pd.read_csv('csvs/cryptototalvolume.csv')
 volumedata = volumedata.drop('date',1)
 volumecolumns = volumedata.columns
 volumedata[volumecolumns] = volumedata[volumecolumns].apply(pd.to_numeric, errors='coerce')
-volumerangetable = ((volumedata.iloc[prevdate] - volumedata.iloc[curdate])/volumedata.iloc[[prevdate]]*100)
+volumedata.replace(0, np.nan, inplace=True)
+volumerangetable = ((volumedata.iloc[curdate] - volumedata.iloc[prevdate])/volumedata.iloc[[prevdate]]*100)
 volumerangetable = volumerangetable.transpose()
 volumerangetable.index.names = ['ticker']
 volumerangetable.rename(columns={ volumerangetable.columns[0]: "pct change" }, inplace = True)
@@ -75,7 +79,7 @@ circulatingdata = pd.read_csv('csvs/cryptocirculatingsupply.csv')
 circulatingdata = circulatingdata.drop('date',1)
 circulatingcolumns = circulatingdata.columns
 circulatingdata[circulatingcolumns] = circulatingdata[circulatingcolumns].apply(pd.to_numeric, errors='coerce')
-circulatingrangetable = ((circulatingdata.iloc[prevdate] - circulatingdata.iloc[curdate])/circulatingdata.iloc[[prevdate]]*100)
+circulatingrangetable = ((circulatingdata.iloc[curdate] - circulatingdata.iloc[prevdate])/circulatingdata.iloc[[prevdate]]*100)
 circulatingrangetable = circulatingrangetable.transpose()
 circulatingrangetable.index.names = ['ticker']
 circulatingrangetable.rename(columns={ circulatingrangetable.columns[0]: "pct change" }, inplace = True)
@@ -84,6 +88,20 @@ circulatingrangetablelosers = circulatingrangetable.nsmallest(numberofmovers,'pc
 circulatingrangetable = pd.concat([circulatingrangetablegainers, circulatingrangetablelosers])
 circulatingrangetable.reset_index(inplace = True)
 circulatingrangetable.to_sql('cryptocirculatingsupply', engine, if_exists='replace')
+
+pricedata = pd.read_csv('csvs/cryptoprice.csv')
+pricedata = pricedata.drop('date',1)
+pricecolumns = pricedata.columns
+pricedata[pricecolumns] = pricedata[pricecolumns].apply(pd.to_numeric, errors='coerce')
+pricerangetable = ((pricedata.iloc[curdate] - pricedata.iloc[prevdate])/pricedata.iloc[[prevdate]]*100)
+pricerangetable = pricerangetable.transpose()
+pricerangetable.index.names = ['ticker']
+pricerangetable.rename(columns={ pricerangetable.columns[0]: "pct change" }, inplace = True)
+pricerangetablegainers = pricerangetable.nlargest(numberofmovers,'pct change')
+pricerangetablelosers = pricerangetable.nsmallest(numberofmovers,'pct change')
+pricerangetable = pd.concat([pricerangetablegainers, pricerangetablelosers])
+pricerangetable.reset_index(inplace = True)
+pricerangetable.to_sql('cryptopricechangecalc', engine, if_exists='replace')
 
 pricechangedata = pd.read_csv('csvs/cryptopricechange.csv')
 pricechangedata = pricechangedata.iloc[[curdate]]
@@ -100,3 +118,4 @@ pricechangedata = pd.concat([pricechangegainers, pricechangelosers])
 pricechangedata.reset_index(inplace = True)
 pricechangedata.to_sql('cryptopricechange', engine, if_exists='replace')
 
+print("DBs created 6")

@@ -52,13 +52,13 @@ tickerSOI = os.path.join(directory, 'equityuniverse.csv')
 #datesList = os.path.join(directory, 'dateslist.csv')
 
 
-usequityclosetable = pd.read_csv('csvs/usequityclosetable.csv')
+usequityclosetable = pd.read_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\usequityclosetable.csv')
 usequityclosetable.set_index('date', inplace=True)
-usequityvolumetable = pd.read_csv('csvs/usequityvolumetable.csv')
+usequityvolumetable = pd.read_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\usequityvolumetable.csv')
 usequityvolumetable.set_index('date', inplace=True)
-usequityopentable = pd.read_csv('csvs/usequityopentable.csv')
+usequityopentable = pd.read_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\usequityopentable.csv')
 usequityopentable.set_index('date', inplace=True)
-usequityintradaytable = pd.read_csv('csvs/usequityintradaytable.csv')
+usequityintradaytable = pd.read_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\usequityintradaytable.csv')
 usequityintradaytable.set_index('date', inplace=True)
 
 
@@ -152,7 +152,9 @@ volumetable = pd.concat([volumetable,usequityvolumetable],sort=True)
 opentable = pd.concat([opentable,usequityopentable],sort=True)
 intradaytable = pd.concat([intradaytable,usequityintradaytable],sort=True)
 
-closetable.to_csv('csvs/usequityclosetable.csv')
-volumetable.to_csv('csvs/usequityvolumetable.csv')
-opentable.to_csv('csvs/usequityopentable.csv')
-intradaytable.to_csv('csvs/usequityintradaytable.csv')
+closetable.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\usequityclosetable.csv')
+volumetable.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\usequityvolumetable.csv')
+opentable.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\usequityopentable.csv')
+intradaytable.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\usequityintradaytable.csv')
+
+print("CSVs created")
