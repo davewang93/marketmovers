@@ -145,6 +145,10 @@ for index,row in tickers.iterrows():
     revenuetable = pd.concat([revenuetable, revenue])
     print("Appended revenue for " + symbol)
 
+    shares = stats['sharesOutstanding']
+    sharestable = pd.concat([sharestable, shares])
+    print("Appended shares for " + symbol)
+
     cash = stats['totalCash']
     cashtable = pd.concat([cashtable, cash])
     print("Appended cash for " + symbol)
