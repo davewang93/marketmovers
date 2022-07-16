@@ -76,14 +76,14 @@ output.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\equityzscores.csv')
 
 latestmarket = closedata.iloc[-1]
 latestmarket = latestmarket.drop('Market Avg')
-latestmarketgainers = latestmarket.nlargest(10)
-latestmarketlosers = latestmarket.nsmallest(10)
+latestmarketgainers = latestmarket.nlargest(25)
+latestmarketlosers = latestmarket.nsmallest(25)
 latestmarkettable = pd.concat([latestmarketgainers, latestmarketlosers])
-latestmarkettable.to_csv('Market Extremes.csv')
+latestmarkettable.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\Market Extremes.csv')
 
 latestsp500 = closedata2.iloc[-1]
-latestsp500 = latestsp500.drop(r'D:\OneDrive\David\src\MarketMovers\CSVs\SP500 Avg')
+latestsp500 = latestsp500.drop('SP500 Avg')
 latestsp500gainers = latestsp500.nlargest(10)
 latestsp500losers = latestsp500.nsmallest(10)
 latestsp500table = pd.concat([latestsp500gainers, latestsp500losers])
-latestsp500.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\SP500 Extremes.csv')
+latestsp500table.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\SP500 Extremes.csv')
