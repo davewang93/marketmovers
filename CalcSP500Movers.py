@@ -112,3 +112,5 @@ overnightrangetable.reset_index(inplace = True)
 overnightrangetable.to_sql('sp500overnight', engine, if_exists='replace')
 
 print('DBs created 5')
+
+  
