@@ -53,11 +53,11 @@ output = pd.DataFrame()
 
 closedata = pd.read_csv('csvs/usequityclosetable.csv', index_col='date')
 closedata2 = closedata[columns]
+closedata3 = closedata.drop(columns,axis=1)
 closedata.sort_values(by='date', inplace=True)
 closedata = closedata.pct_change().cumsum().dropna(how='all')
 closedata = closedata.apply(zscore).dropna(axis=1, how='all')
 closedata['Market Avg'] = closedata.mean(axis=1)
-closedata.to_csv('test2.csv')
 
 output = closedata['Market Avg']
 
@@ -68,14 +68,22 @@ closedata2 = closedata2.apply(zscore).dropna(axis=1, how='all')
 closedata2['SP500 Avg'] = closedata2.mean(axis=1)
 #output2 = closedata2['SP500 Avg']
 
+closedata3.sort_values(by='date', inplace=True)
+closedata3 = closedata3.pct_change().cumsum().dropna(how='all')
+closedata3 = closedata3.apply(zscore).dropna(axis=1, how='all')
+
+closedata3['Market Ex 500 Avg'] = closedata3.mean(axis=1)
+
 output = pd.concat([output, closedata2['SP500 Avg']], axis=1)
 
+output = pd.concat([output, closedata3['Market Ex 500 Avg']], axis=1)
 #print(output.head())
 
 output.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\equityzscores.csv')
 
 latestmarket = closedata.iloc[-1]
 latestmarket = latestmarket.drop('Market Avg')
+latestmarket.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\All Market Extremes.csv')
 latestmarketgainers = latestmarket.nlargest(25)
 latestmarketlosers = latestmarket.nsmallest(25)
 latestmarkettable = pd.concat([latestmarketgainers, latestmarketlosers])
@@ -83,7 +91,19 @@ latestmarkettable.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\Market Extrem
 
 latestsp500 = closedata2.iloc[-1]
 latestsp500 = latestsp500.drop('SP500 Avg')
+latestsp500.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\All SP500 Extremes.csv')
 latestsp500gainers = latestsp500.nlargest(10)
 latestsp500losers = latestsp500.nsmallest(10)
 latestsp500table = pd.concat([latestsp500gainers, latestsp500losers])
 latestsp500table.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\SP500 Extremes.csv')
+
+'''
+corrtable = closedata2.drop('SP500 Avg',axis=1).corr()
+corrtable = corrtable.where(np.triu(np.ones(corrtable.shape)).astype(np.bool))
+corrtable = corrtable.stack().reset_index()
+corrtable.columns = ['Ticker1', 'Ticker2', 'Corr']
+corrtable = corrtable.query("Ticker1 != Ticker2")
+corrtable = corrtable.nlargest(25,'Corr')
+
+corrtable.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\Market Corr.csv')
+'''
