@@ -61,7 +61,7 @@ closedata = closedata.apply(zscore).dropna(axis=1, how='all')
 closedata2.sort_values(by='date', inplace=True)
 closedata2 = closedata2.pct_change().cumsum().dropna(how='all')
 closedata2 = closedata2.apply(zscore).dropna(axis=1, how='all')
-'''
+
 output = closedata.stack().reset_index()
 output.columns = ['date','ticker','zscore']
 output = output.set_index('date')
@@ -71,7 +71,7 @@ output = output.pivot(index='date', columns='bins', values="count")
 output = output.div(output.sum(axis=1), axis=0).multiply(100)
 print(output)
 output.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\Distributions.csv')
-'''
+
 output2 = closedata2.stack().reset_index()
 output2.columns = ['date','ticker','zscore']
 output2 = output2.set_index('date')
