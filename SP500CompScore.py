@@ -58,7 +58,7 @@ closedata2 = closedata[columns]
 closedata3 = closedata.drop(columns,axis=1)
 
 closedata.sort_values(by='date', inplace=True)
-closedata = closedata.pct_change().cumsum().dropna(how='all')
+closedata = closedata.pct_change().dropna(how='all').add(1).cumprod()
 closedata = closedata.apply(zscore).dropna(axis=1, how='all')
 closedata.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\equityzsearchable.csv')
 disttable = closedata.stack().reset_index()
@@ -67,14 +67,14 @@ closedata['Market Avg'] = closedata.mean(axis=1)
 output = closedata['Market Avg']
 
 closedata2.sort_values(by='date', inplace=True)
-closedata2 = closedata2.pct_change().cumsum().dropna(how='all')
+closedata2 = closedata2.pct_change().dropna(how='all').add(1).cumprod()
 closedata2 = closedata2.apply(zscore).dropna(axis=1, how='all')
 disttable2 = closedata2.stack().reset_index()
 closedata2['SP500 Avg'] = closedata2.mean(axis=1)
 #output2 = closedata2['SP500 Avg']
 
 closedata3.sort_values(by='date', inplace=True)
-closedata3 = closedata3.pct_change().cumsum().dropna(how='all')
+closedata3 = closedata3.pct_change().dropna(how='all').add(1).cumprod()
 closedata3 = closedata3.apply(zscore).dropna(axis=1, how='all')
 
 closedata3['Market Ex 500 Avg'] = closedata3.mean(axis=1)
@@ -119,6 +119,24 @@ disttable2 = disttable2.pivot(index='date', columns='bins', values="count")
 disttable2 = disttable2.div(disttable2.sum(axis=1), axis=0).multiply(100)
 print(disttable2)
 disttable2.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\SP500Distributions.csv')
+
+
+volumedata = pd.read_csv('csvs/usequityvolumetable.csv', index_col='date')
+volumedatasp = volumedata[columns]
+volumedataexsp = volumedata.drop(columns,axis=1)
+
+volumedata['tmv'] = volumedata.sum(axis=1)
+volumedata = volumedata[['tmv']]
+
+volumedatasp['spv'] = volumedatasp.sum(axis=1)
+volumedatasp = volumedatasp[['spv']]
+
+volumedataexsp['exspv'] = volumedataexsp.sum(axis=1)
+volumedataexsp = volumedataexsp[['exspv']]
+
+volumetable = pd.concat([volumedata, volumedatasp,volumedataexsp], axis=1)
+print(volumetable)
+volumetable.to_csv(r'D:\OneDrive\David\src\MarketMovers\CSVs\equityaggvolume.csv')
 
 '''
 corrtable = closedata2.drop('SP500 Avg',axis=1).corr()
