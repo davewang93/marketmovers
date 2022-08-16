@@ -1,4 +1,3 @@
-import pandas_datareader as pdr
 import quandl as ql
 import pandas as pd
 import numpy as np
